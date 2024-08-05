@@ -13,7 +13,8 @@ public class Constants {
 
     // JSON OUTPUT
     public static final String JSON_OUTPUT_PATH     = "Output";
-    public static final String JSON_ERROR_PATH      = "Error";
+    public static final String JSON_O_ERROR_PATH    = "Error";
+    public static final String JSON_O_MESSAGE_PATH  = "Message";
 
 
     // JSON INPUT PARAMETERS
