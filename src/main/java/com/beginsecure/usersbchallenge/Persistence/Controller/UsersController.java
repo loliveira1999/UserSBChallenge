@@ -221,7 +221,7 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
-        if(usersService.getUserWSameEmail(user.getEmail(), userID) != null){
+        if(usersService.isEmailInUse(user.getEmail(), userID)){
             String outputMsg = "Provided Email is already associated with a different account!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
@@ -388,7 +388,7 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
-        if(usersService.getUserWSameEmail(user.getEmail(), null) != null){
+        if(usersService.isEmailInUse(user.getEmail(), null)){
             String outputMsg = "Provided Email is already associated with a different account!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);

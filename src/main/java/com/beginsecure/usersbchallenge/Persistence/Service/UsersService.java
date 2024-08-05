@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.beginsecure.usersbchallenge.Persistence.Entity.UsersEntity;
@@ -29,9 +30,10 @@ public class UsersService {
         return usersRepository.getActiveUserByID(userID);
     }
 
-    public UsersEntity getUserWSameEmail(String userEmail, Integer userID){
+    public boolean isEmailInUse(String userEmail, Integer userID){
         // ID can be null
-        return usersRepository.getUserWSameEmail(userID, userEmail);
+        List<UsersEntity> users = usersRepository.getUserWEmail(userEmail, userID, PageRequest.of(0, 1));
+        return !users.isEmpty();
     }
     
     public List<UsersEntity> getUsers(Integer userID){
