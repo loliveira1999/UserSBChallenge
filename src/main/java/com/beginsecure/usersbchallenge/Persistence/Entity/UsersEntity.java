@@ -50,6 +50,39 @@ public class UsersEntity {
     public UsersEntity() {}
 
     // json
+    public UsersEntity(JSONObject jsonContent) {
+        // only fills attributes specified in the JSON
+        // ID
+        if(jsonContent.has(Constants.JSON_P_ID)){
+            this.ID = jsonContent.getInt(Constants.JSON_P_ID);
+        }
+        // name
+        if(jsonContent.has(Constants.JSON_P_NAME)){
+            this.name = jsonContent.getString(Constants.JSON_P_NAME);
+        }
+        // email
+        if(jsonContent.has(Constants.JSON_P_EMAIL)){
+            this.email = Functions.setEmail(jsonContent.getString(Constants.JSON_P_EMAIL));
+        }
+        // password (encrypts value)
+        if(jsonContent.has(Constants.JSON_P_PASSWORD)){
+            this.password = Functions.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
+        }
+        // birthdate
+        if(jsonContent.has(Constants.JSON_P_BIRTHDATE)){
+            this.birthdate = Functions.stringToDate(
+                jsonContent.optString(Constants.JSON_P_BIRTHDATE),
+                Constants.DATE_FORMAT);
+        }
+        // created on
+        this.createdOn = new Date();
+        // updated on
+        this.updatedOn = this.createdOn;
+        // is active
+        this.isActive = true;
+    }
+
+    // json
     public void updateUser(JSONObject jsonContent) {
         // only fills attributes specified in the JSON
         // ID
@@ -80,16 +113,17 @@ public class UsersEntity {
                 jsonContent.getBoolean(Constants.JSON_P_ISACTIVE),
                 Boolean.FALSE);
         }
-        // update on
+        // updated on
         this.updatedOn = new Date();
     }
 
-    public boolean isUserValid(){
+    // verify if recently created user is invalid (contains null values)
+    public boolean isUserInvalid(){
         return 
-            (this.name != null && this.name.isBlank())
-            && (this.email != null && this.email.isBlank())
-            && (this.password != null && this.password.isBlank())
-            && this.birthdate != null;
+            (this.name == null || this.name.isBlank())
+            || (this.email == null || this.email.isBlank())
+            || (this.password == null || this.password.isBlank())
+            || this.birthdate == null;
     }
 
     // TO JSON

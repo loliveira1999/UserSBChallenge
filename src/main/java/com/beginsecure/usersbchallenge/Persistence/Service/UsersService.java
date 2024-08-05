@@ -20,6 +20,8 @@ public class UsersService {
     }
 
     public UsersEntity getUserByID(Integer userID){
+        if(userID == null)
+            return null;
         return usersRepository.getUserByID(userID);
     }
 
@@ -27,7 +29,8 @@ public class UsersService {
         return usersRepository.getActiveUserByID(userID);
     }
 
-    public UsersEntity getUserWSameEmail(Integer userID, String userEmail){
+    public UsersEntity getUserWSameEmail(String userEmail, Integer userID){
+        // ID can be null
         return usersRepository.getUserWSameEmail(userID, userEmail);
     }
     

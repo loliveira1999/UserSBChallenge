@@ -119,12 +119,21 @@ public class UsersController {
         }
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Query...");
 
-        List<UsersEntity> users = usersService.getUsers(userID);
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried Data...");
-        jsonDebug = Functions.addDebugTrail(jsonDebug, users == null || users.isEmpty() ? "Did not found Users..." : "Found Users...");
-        
-        String newOutputMsg = "Successfully Queried User/s";
-        finalOutputStr = successOutput(jsonOutput, newOutputMsg, queryResultsToJsonArray(users), jsonDebug, audit);
+        try{
+            List<UsersEntity> users = usersService.getUsers(userID);
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried Data...");
+            jsonDebug = Functions.addDebugTrail(jsonDebug, 
+                users == null || users.isEmpty() ? "Did not found Users..." : "Found Users...");
+            String newOutputMsg = "Successfully Fetched User/s";
+            finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
+                queryResultsToJsonArray(users), jsonDebug, audit);
+        }
+        catch(Exception e){
+            String outputMsg = "Error while Fetching User/s!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
         return ResponseEntity.ok(finalOutputStr);
     }
 
@@ -205,14 +214,14 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify for NULL values
-        if(user.isUserValid()){
+        if(user.isUserInvalid()){
             String outputMsg = "Provided updated values are not valid!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
-        if(usersService.getUserWSameEmail(userID, user.getEmail()) != null){
+        if(usersService.getUserWSameEmail(user.getEmail(), userID) != null){
             String outputMsg = "Provided Email is already associated with a different account!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
@@ -222,12 +231,22 @@ public class UsersController {
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to update User...");
         
         // update user in db
-        user = usersService.updateUser(user);
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Updated Data...");
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
+        try{
+            user = usersService.updateUser(user);
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Updated Data...");
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
 
-        String newOutputMsg = "Successfully Updated User";
-        finalOutputStr = successOutput(jsonOutput, newOutputMsg, queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+            String newOutputMsg = "Successfully Updated User";
+            finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
+                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+        }
+        catch(Exception e){
+            String outputMsg = "Error while Updating User!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        
         return ResponseEntity.ok(finalOutputStr);
     }
 
@@ -285,20 +304,116 @@ public class UsersController {
         }
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried User to Delete...");
 
-        user.setIsActive(false);
-        
-        user = usersService.updateUser(user);
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
-
-        String newOutputMsg = "Successfully Deleted User";
-        finalOutputStr = successOutput(jsonOutput, newOutputMsg, queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+        try{
+            user.setIsActive(false);        
+            user = usersService.updateUser(user);
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
+            String newOutputMsg = "Successfully Deleted User";
+            finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
+                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+        }
+        catch(Exception e){
+            String outputMsg = "Error while Deleting User!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
         return ResponseEntity.ok(finalOutputStr);
     }
 
-        // CREATE USER
-        @PutMapping(path="createUser")
-        public ResponseEntity<String> createUser(@RequestBody String rawJsonRequest) {
-            return null
+    // CREATE USER
+    @PutMapping(path="createUser")
+    public ResponseEntity<String> createUser(@RequestBody String rawJsonRequest) {
+        String finalOutputStr = null;
+        String requestURI = "api/users/createUser";
+        Date startTime = new Date();
+        String processUUID = UUID.randomUUID().toString();
+        AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_UPDATE_USER);
+
+        JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
+        auditService.beginAudit(audit, jsonDebug);
+
+        JSONObject jsonOutput = new JSONObject();
+        JSONObject jsonInput = null;
+
+        if(rawJsonRequest == null || rawJsonRequest.isBlank()){
+            String outputMsg = "JSON Input is empty.";
+            String exceptionMsg = outputMsg;
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+        
+        try{
+            jsonInput = new JSONObject(rawJsonRequest);
+            if(!jsonInput.has(Constants.JSON_P_CONTENT)){
+                throw new Exception("Invalid JSON! Content was not found.");
+            }
+            jsonDebug.put(Constants.JSON_D_INPUT_PATH, jsonInput);
+        }
+        catch(Exception e){
+            String outputMsg = "JSON Input is invalid or empty.";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
+        if(jsonContent.keySet().size() == 0){
+            String outputMsg = "JSON Input does not contain enough content to create a User.";
+            String exceptionMsg = "Exception occurred while extracting Data from JSON...";
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+
+        // creates user with json content
+        UsersEntity user = new UsersEntity(jsonContent);
+        // verify email
+        if(user.getEmail() == null){
+            String outputMsg = "Provided Email is not valid! It has an invalid format!";
+            String exceptionMsg = "Exception when mapping updated User Data...";
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        // verify password
+        if(user.getPassword() == null){
+            String outputMsg = "Provided Password is not valid! It must have at least " + Constants.PASSWORD_MIN_LEN + " characters!";
+            String exceptionMsg = "Exception when mapping updated User Data...";
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        // verify NULL values inside user
+        if(user.isUserInvalid()){
+            String outputMsg = "Provided updated values are not valid!";
+            String exceptionMsg = "Exception when mapping updated User Data...";
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        // verify unique email
+        if(usersService.getUserWSameEmail(user.getEmail(), null) != null){
+            String outputMsg = "Provided Email is already associated with a different account!";
+            String exceptionMsg = "Exception when mapping updated User Data...";
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+
+        jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to create User...");
+        
+        // insert user in db
+        try{
+            user = usersService.insertUser(user);
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Inserted Data...");
+            jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
+
+            String newOutputMsg = "Successfully Created User";
+            finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
+                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+        }
+        catch(Exception e){
+            String outputMsg = "Error while Creating User!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
+        return ResponseEntity.ok(finalOutputStr);
+    }
 }
 

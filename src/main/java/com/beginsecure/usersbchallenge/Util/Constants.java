@@ -10,7 +10,7 @@ public class Constants {
     public static final String JSON_D_STARTDATE_PATH    = "StartDate";
     public static final String JSON_D_TRAIL_PATH        = "AuditTrail";
     public static final String JSON_D_URI_PATH          = "URI";
-    public static final String JSON_D_OUTPUT_PATH       = "Output";
+    public static final String JSON_D_OUTPUT_PATH       = "FinalOutput";
 
     // JSON OUTPUT
     public static final String JSON_OUTPUT_PATH     = "Output";
