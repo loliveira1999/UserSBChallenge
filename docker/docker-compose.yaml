@@ -1,0 +1,12 @@
+services:
+  mysql:
+    container_name: LoopSpringBoot
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '12345678'
+      MYSQL_DATABASE: UserSBChallenge
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./dbBackup.sql:/docker-entrypoint-initdb.d/dbBackup.sql
