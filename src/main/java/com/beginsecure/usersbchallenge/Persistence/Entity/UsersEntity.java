@@ -1,6 +1,8 @@
 package com.beginsecure.usersbchallenge.Persistence.Entity;
 
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONObject;
 
@@ -48,33 +50,23 @@ public class UsersEntity {
     public UsersEntity() {}
 
     // json
-    public UsersEntity(JSONObject jsonContent) {
-        // extract data from JSON
-        this.name = jsonContent.optString(Constants.JSON_P_NAME);
-        this.email = jsonContent.optString(Constants.JSON_P_EMAIL);
-        this.birthdate = Functions.stringToDate(
-            jsonContent.getString(Constants.JSON_P_BIRTHDATE),
-            Constants.DATE_FORMAT);
-
-        this.createdOn = Functions.stringToDate(
-            new Date().toString(),
-            Constants.DATE_TIME_MSEC_FORMAT);
-
-        this.updatedOn = this.createdOn;
-        this.isActive = true;
-    }
-
-    // UPDATE
-    public void updateUser(JSONObject jsonContent){
-        // only updates attributes specified in the JSON
-
+    public void updateUser(JSONObject jsonContent) {
+        // only fills attributes specified in the JSON
+        // ID
+        if(jsonContent.has(Constants.JSON_P_ID)){
+            this.ID = jsonContent.getInt(Constants.JSON_P_ID);
+        }
         // name
         if(jsonContent.has(Constants.JSON_P_NAME)){
-            this.name = jsonContent.optString(Constants.JSON_P_NAME);
+            this.name = jsonContent.getString(Constants.JSON_P_NAME);
         }
         // email
         if(jsonContent.has(Constants.JSON_P_EMAIL)){
-            this.email = Functions.setEmail(jsonContent.optString(Constants.JSON_P_EMAIL));
+            this.email = Functions.setEmail(jsonContent.getString(Constants.JSON_P_EMAIL));
+        }
+        // password
+        if(jsonContent.has(Constants.JSON_P_PASSWORD)){
+            this.password = Functions.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
         }
         // birthdate
         if(jsonContent.has(Constants.JSON_P_BIRTHDATE)){
@@ -82,18 +74,22 @@ public class UsersEntity {
                 jsonContent.optString(Constants.JSON_P_BIRTHDATE),
                 Constants.DATE_FORMAT);
         }
-        // updated on
-        // this.updatedOn = Functions.stringToDate(
-        //     new Date().toString(),
-        //     Constants.DATE_TIME_MSEC_FORMAT);
-        this.updatedOn = new Date();
-
         // is active
         if(jsonContent.has(Constants.JSON_P_ISACTIVE)){
             this.isActive = (Boolean) Functions.defaultValue(
-                jsonContent.optBoolean(Constants.JSON_P_ISACTIVE), 
+                jsonContent.getBoolean(Constants.JSON_P_ISACTIVE),
                 Boolean.FALSE);
         }
+        // update on
+        this.updatedOn = new Date();
+    }
+
+    public boolean isUserValid(){
+        return 
+            (this.name != null && this.name.isBlank())
+            && (this.email != null && this.email.isBlank())
+            && (this.password != null && this.password.isBlank())
+            && this.birthdate != null;
     }
 
     // TO JSON
@@ -102,7 +98,7 @@ public class UsersEntity {
             .put("ID", Functions.defaultValue(this.ID, JSONObject.NULL))
             .put("name", Functions.defaultValue(this.name, JSONObject.NULL))
             .put("email", Functions.defaultValue(this.email, JSONObject.NULL))
-            // password missing
+            .put("password", Functions.defaultValue(this.password, JSONObject.NULL))
             .put("birthdate", Functions.defaultValue(
                                 Functions.dateTimeToString(this.birthdate, Constants.DATE_FORMAT), 
                                 JSONObject.NULL))
@@ -118,6 +114,10 @@ public class UsersEntity {
     // GETTERS / SETTERS
     public Integer getID() {
         return ID;
+    }
+
+    public void setID(Integer ID) {
+        this.ID = ID;
     }
 
     public String getName() {
@@ -156,7 +156,7 @@ public class UsersEntity {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn() {
         this.createdOn = new Date();
     }
 

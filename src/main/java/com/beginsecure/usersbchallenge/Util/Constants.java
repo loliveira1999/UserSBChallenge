@@ -22,6 +22,7 @@ public class Constants {
     public static final String JSON_P_ID            = "id";
     public static final String JSON_P_NAME          = "name";
     public static final String JSON_P_EMAIL         = "email";
+    public static final String JSON_P_PASSWORD      = "password";
     public static final String JSON_P_BIRTHDATE     = "birthdate";
     public static final String JSON_P_ISACTIVE      = "isActive";
 
@@ -32,6 +33,7 @@ public class Constants {
     public static final String DATE_TIME_SEC_FORMAT     = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_MSEC_FORMAT    = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final String EMAIL_PATTERN            = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\\.[a-zA-Z]+)+$";
+    public static final int PASSWORD_MIN_LEN            = 8;
 
     // AUDIT
     public static final String AUDIT_PROCESS_NAME_DELETE_USER   = "DELETE_USER";
@@ -49,4 +51,6 @@ public class Constants {
     
     // API TOKEN
     public static final String API_TOKEN_FILE_PATH = "Config/apiToken.txt";
+
+
 }

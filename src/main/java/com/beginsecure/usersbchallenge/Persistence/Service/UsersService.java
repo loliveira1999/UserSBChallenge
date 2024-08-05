@@ -22,6 +22,14 @@ public class UsersService {
     public UsersEntity getUserByID(Integer userID){
         return usersRepository.getUserByID(userID);
     }
+
+    public UsersEntity getActiveUserByID(Integer userID){
+        return usersRepository.getActiveUserByID(userID);
+    }
+
+    public UsersEntity getUserWSameEmail(Integer userID, String userEmail){
+        return usersRepository.getUserWSameEmail(userID, userEmail);
+    }
     
     public List<UsersEntity> getUsers(Integer userID){
         if(userID == null)
@@ -33,19 +41,16 @@ public class UsersService {
     }
 
     public UsersEntity insertUser(UsersEntity user){
+        user.setID(null);
+        user.setCreatedOn();
+        user.setUpdatedOn();
         return usersRepository.saveAndFlush(user);
     }
 
     public UsersEntity updateUser(UsersEntity user){
         if(user.getID() == null)
             return null;
+        user.setUpdatedOn();
         return usersRepository.saveAndFlush(user);
     }
-
-    public void deleteUser(Integer ID){
-        if(ID == null)
-            return;
-            usersRepository.deleteById(ID);
-    }
-
 }

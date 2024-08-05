@@ -50,16 +50,15 @@ public class Functions{
     }
 
     public static String setEmail(String email){
-        if(email == null || email.isBlank())
+        if(!Functions.isEmailValid(email))
             return null;
-        Pattern pattern = Pattern.compile(Constants.EMAIL_PATTERN);
-        Matcher matcher = pattern.matcher(email);
-        boolean matchFound = matcher.find();
-        if(matchFound) {
-            return email;
-        } else {
+        return email.trim();
+    }
+
+    public static String setPassword(String password){
+        if(!Functions.isPasswordValid(password))
             return null;
-        }
+        return password.trim();
     }
 
     public static String concatStrings(String[] strs){
@@ -121,5 +120,24 @@ public class Functions{
 
     public static Object defaultValue(Object value, Object defaultValue){
         return value == null ? defaultValue : value;
+    }
+    
+
+    public static boolean isEmailValid(String email){
+        if(email == null || email.isBlank())
+            return false;
+        Pattern pattern = Pattern.compile(Constants.EMAIL_PATTERN);
+        Matcher matcher = pattern.matcher(email);
+        boolean matchFound = matcher.find();
+        if(matchFound)
+            return true;
+        else 
+            return false;
+    }
+
+    public static boolean isPasswordValid(String password){
+        if(password == null || password.isBlank() || password.length() < Constants.PASSWORD_MIN_LEN)
+            return false;
+        return true;
     }
 }
