@@ -23,6 +23,7 @@ import com.beginsecure.usersbchallenge.Util.Constants;
 import com.beginsecure.usersbchallenge.Util.Functions;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -220,7 +221,7 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
-        // verify for NULL values
+        // verify NULL values inside user
         if(user.isUserInvalid()){
             String outputMsg = "Provided updated values are not valid!";
             String exceptionMsg = "Exception when mapping updated User Data...";
@@ -234,6 +235,7 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to update User...");
         // update user in db
         try{
@@ -328,7 +330,7 @@ public class UsersController {
     }
 
     // CREATE USER
-    @PutMapping(path="createUser")
+    @PostMapping(path="createUser")
     public ResponseEntity<String> createUser(@RequestBody String rawJsonRequest) {
         String finalOutputStr = null;
         String requestURI = "api/users/createUser";
@@ -389,7 +391,8 @@ public class UsersController {
         }
         // verify password
         if(user.getPassword() == null){
-            String outputMsg = "Provided Password is not valid! It must have at least " + Constants.PASSWORD_MIN_LEN + " characters!";
+            String outputMsg = "Provided Password is not valid! It must have at least " 
+                + Constants.PASSWORD_MIN_LEN + " characters!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);

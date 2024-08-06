@@ -155,8 +155,8 @@ public class Functions{
         return Base64.getEncoder().encodeToString(hash);
     }
 
-    public static byte[] decodeSalt(String encodedSalt) {
-        return Base64.getDecoder().decode(encodedSalt);
+    public static byte[] decodeHash(String hash) {
+        return Base64.getDecoder().decode(hash);
     }
     
     public static String hashAndEncodePassword(String encodedSalt, String password) throws NoSuchAlgorithmException{
@@ -165,7 +165,7 @@ public class Functions{
         }
 
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.update(Functions.decodeSalt(encodedSalt));
+        digest.update(Functions.decodeHash(encodedSalt));
         digest.update(password.getBytes());
         byte[] hash = digest.digest();
         return Functions.encodeHash(hash);
