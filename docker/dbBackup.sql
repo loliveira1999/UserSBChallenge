@@ -6,6 +6,7 @@ CREATE TABLE `UserSBChallenge`.`users` (
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `password_salt` varchar(255) NOT NULL,
   `birthdate` date NOT NULL,
   `created_on` datetime(3) NOT NULL DEFAULT NOW(3),
   `updated_on` datetime(3) NOT NULL DEFAULT NOW(3),
@@ -23,17 +24,3 @@ CREATE TABLE `UserSBChallenge`.`audit` (
   `created_on` datetime(3) NOT NULL DEFAULT NOW(3),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-INSERT INTO `UserSBChallenge`.`users`(
-  `name`,
-  `email`,
-  `password`,
-  `birthdate`,
-  `created_on`,
-  `updated_on`,
-  `is_active`
-)
-VALUES
-('Luis', 'Luis@mail.com', 'pw', '1999-02-11', NOW(3), NOW(3), b'1'),
-('Jose', 'Jose@mail.com', 'pw', '1999-02-11', NOW(3), NOW(3), b'1');

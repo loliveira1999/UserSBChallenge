@@ -3,11 +3,11 @@ package com.beginsecure.usersbchallenge.Persistence.Controller;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.ArrayList;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 
-import org.hibernate.result.Output;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,7 +75,6 @@ public class UsersController {
         auditService.endAudit(audit, jsonDebug);
         return jsonOutput.toString();
     }
-    
 
     // GET USER
     @GetMapping("getUsers")
@@ -198,7 +197,14 @@ public class UsersController {
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried User to Update...");
 
         // updates user with json content (only specified and valid values, invalid values are put to null)
-        user.updateUser(jsonContent);
+        try {
+            user.updateUser(jsonContent);
+        } catch (NoSuchAlgorithmException | JSONException e) {
+            String outputMsg = "Error Updating User!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
         // verify email
         if(user.getEmail() == null){
             String outputMsg = "Provided Email is not valid! It has an invalid format!";
@@ -208,7 +214,8 @@ public class UsersController {
         }
         // verify password
         if(user.getPassword() == null){
-            String outputMsg = "Provided Password is not valid! It must have at least " + Constants.PASSWORD_MIN_LEN + " characters!";
+            String outputMsg = "Provided Password is not valid! It must have at least " 
+                + Constants.PASSWORD_MIN_LEN + " characters!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
@@ -227,7 +234,6 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
-
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to update User...");
         
         // update user in db
@@ -365,7 +371,15 @@ public class UsersController {
         }
 
         // creates user with json content
-        UsersEntity user = new UsersEntity(jsonContent);
+        UsersEntity user = null;
+        try {
+            user = new UsersEntity(jsonContent);
+        } catch (NoSuchAlgorithmException | JSONException e) {
+            String outputMsg = "Error Creating User!";
+            String exceptionMsg = e.getMessage();
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
+        }
         // verify email
         if(user.getEmail() == null){
             String outputMsg = "Provided Email is not valid! It has an invalid format!";

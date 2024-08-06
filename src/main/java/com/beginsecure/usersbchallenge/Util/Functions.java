@@ -3,9 +3,12 @@ package com.beginsecure.usersbchallenge.Util;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
+import java.util.Base64;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,10 +58,10 @@ public class Functions{
         return email.trim();
     }
 
-    public static String setPassword(String password){
-        if(!Functions.isPasswordValid(password))
+    public static String setPassword(String encodedSalt, String password) throws NoSuchAlgorithmException{
+        if(!Functions.isPasswordValid(password) || encodedSalt == null || encodedSalt.isBlank())
             return null;
-        return password.trim();
+        return Functions.hashAndEncodePassword(encodedSalt, password.trim());
     }
 
     public static String concatStrings(String[] strs){
@@ -136,8 +139,35 @@ public class Functions{
     }
 
     public static boolean isPasswordValid(String password){
-        if(password == null || password.isBlank() || password.length() < Constants.PASSWORD_MIN_LEN)
-            return false;
-        return true;
+        return password != null 
+            && !password.isBlank() 
+            && password.length() >= Constants.PASSWORD_MIN_LEN;
+    }
+    
+    public static byte[] generateSalt(){
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        return salt;
+    }
+
+    public static String encodeHash(byte[] hash) {
+        return Base64.getEncoder().encodeToString(hash);
+    }
+
+    public static byte[] decodeSalt(String encodedSalt) {
+        return Base64.getDecoder().decode(encodedSalt);
+    }
+    
+    public static String hashAndEncodePassword(String encodedSalt, String password) throws NoSuchAlgorithmException{
+        if(password == null || password.isBlank()){
+            return null;
+        }
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(Functions.decodeSalt(encodedSalt));
+        digest.update(password.getBytes());
+        byte[] hash = digest.digest();
+        return Functions.encodeHash(hash);
     }
 }

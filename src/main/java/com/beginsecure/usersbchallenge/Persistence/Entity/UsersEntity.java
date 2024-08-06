@@ -1,9 +1,9 @@
 package com.beginsecure.usersbchallenge.Persistence.Entity;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.beginsecure.usersbchallenge.Util.Constants;
@@ -33,6 +33,9 @@ public class UsersEntity {
     @Column(name="password", nullable=false, length=255)
     private String password;
 
+    @Column(name="password_salt", nullable=false, length=255)
+    private String passwordSalt;
+
     @Column(name="birthdate", nullable=false)
     private Date birthdate;
 
@@ -50,7 +53,7 @@ public class UsersEntity {
     public UsersEntity() {}
 
     // json
-    public UsersEntity(JSONObject jsonContent) {
+    public UsersEntity(JSONObject jsonContent) throws NoSuchAlgorithmException, JSONException {
         // only fills attributes specified in the JSON
         // ID
         if(jsonContent.has(Constants.JSON_P_ID)){
@@ -64,9 +67,9 @@ public class UsersEntity {
         if(jsonContent.has(Constants.JSON_P_EMAIL)){
             this.email = Functions.setEmail(jsonContent.getString(Constants.JSON_P_EMAIL));
         }
-        // password (encrypts value)
+        // password
         if(jsonContent.has(Constants.JSON_P_PASSWORD)){
-            this.password = Functions.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
+            this.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
         }
         // birthdate
         if(jsonContent.has(Constants.JSON_P_BIRTHDATE)){
@@ -83,7 +86,7 @@ public class UsersEntity {
     }
 
     // json
-    public void updateUser(JSONObject jsonContent) {
+    public void updateUser(JSONObject jsonContent) throws NoSuchAlgorithmException, JSONException {
         // only fills attributes specified in the JSON
         // ID
         if(jsonContent.has(Constants.JSON_P_ID)){
@@ -99,7 +102,7 @@ public class UsersEntity {
         }
         // password
         if(jsonContent.has(Constants.JSON_P_PASSWORD)){
-            this.password = Functions.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
+           this.setPassword(jsonContent.getString(Constants.JSON_P_PASSWORD));
         }
         // birthdate
         if(jsonContent.has(Constants.JSON_P_BIRTHDATE)){
@@ -123,6 +126,7 @@ public class UsersEntity {
             (this.name == null || this.name.isBlank())
             || (this.email == null || this.email.isBlank())
             || (this.password == null || this.password.isBlank())
+            || (this.passwordSalt == null || this.passwordSalt.isBlank())
             || this.birthdate == null;
     }
 
@@ -133,6 +137,7 @@ public class UsersEntity {
             .put("name", Functions.defaultValue(this.name, JSONObject.NULL))
             .put("email", Functions.defaultValue(this.email, JSONObject.NULL))
             .put("password", Functions.defaultValue(this.password, JSONObject.NULL))
+            .put("passwordSalt", Functions.defaultValue(this.passwordSalt, JSONObject.NULL))
             .put("birthdate", Functions.defaultValue(
                                 Functions.dateTimeToString(this.birthdate, Constants.DATE_FORMAT), 
                                 JSONObject.NULL))
@@ -174,8 +179,15 @@ public class UsersEntity {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password) throws NoSuchAlgorithmException {
+        if(Functions.isPasswordValid(password)){
+            this.passwordSalt = Functions.encodeHash(Functions.generateSalt());
+            this.password = Functions.hashAndEncodePassword(this.passwordSalt, password);
+        }
+        else{
+            this.passwordSalt = null;
+            this.password = null;
+        }
     }
 
     public Date getBirthdate() {
