@@ -114,6 +114,15 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+        // token verification
+        String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
+        if(!this.tokenService.isValidToken(requestToken)){
+            String outputMsg = "Invalid Token!";
+            String exceptionMsg = outputMsg;
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
+        }
+
         
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
         Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID);
@@ -174,6 +183,16 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+        // token verification
+        String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
+        if(!this.tokenService.isValidToken(requestToken)){
+            String outputMsg = "Invalid Token!";
+            String exceptionMsg = outputMsg;
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
+        }
+
+
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
         if(jsonContent.keySet().size() == 0){
             String outputMsg = "JSON Input does not contain enough content to update a User.";
@@ -295,6 +314,15 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+        // token verification
+        String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
+        if(!this.tokenService.isValidToken(requestToken)){
+            String outputMsg = "Invalid Token!";
+            String exceptionMsg = outputMsg;
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
+        }
+
         
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
         Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID);

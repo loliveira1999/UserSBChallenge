@@ -22,7 +22,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n        \"id\": 1\n    }\n}"
+					"raw": "{\n    \"Token\": \"\",\n    \"Content\": {\n        \"id\": 1\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/getUsers",
@@ -63,7 +63,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n    }\n}"
+					"raw": "{\n    \"Token\": \"\",\n    \"Content\": {\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/getUsers",
@@ -101,7 +101,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n        \"id\": 1,\n        \"email\": \"zecosta@outlook.com\",\n        \"password\": \"12345678\"\n    }\n}"
+					"raw": "{\n    \"Token\": \"\",\n    \"Content\": {\n        \"id\": 1,\n        \"email\": \"zecosta@outlook.com\",\n        \"password\": \"12345678\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/updateUser",
@@ -177,7 +177,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n        \"id\": 1\n    }\n}"
+					"raw": "{\n    \"Token\": \"\",\n    \"Content\": {\n        \"id\": 1\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/deleteUser",
@@ -212,7 +212,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "6590250d-73aa-4789-89b1-044df644a02c",
+					"raw": "c1729858-19a7-4d76-ae6d-10ed9109fe99",
 					"options": {
 						"raw": {
 							"language": "text"
@@ -269,7 +269,7 @@
 			"response": []
 		},
 		{
-			"name": "generateToken",
+			"name": "generateNewToken",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
