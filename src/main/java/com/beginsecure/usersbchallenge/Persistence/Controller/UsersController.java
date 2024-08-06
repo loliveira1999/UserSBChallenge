@@ -59,7 +59,7 @@ public class UsersController {
         jsonDebug.put(Constants.JSON_D_EXCEPTION_PATH, exceptionMsg);
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Exception Ocurred!");
         // insert audit
-        auditService.exceptionAudit(audit, jsonDebug);
+        this.auditService.exceptionAudit(audit, jsonDebug);
         return jsonOutput.toString();
     }
 
@@ -72,7 +72,7 @@ public class UsersController {
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Finished...");
         jsonDebug.put(Constants.JSON_D_OUTPUT_PATH, jsonOutput);
         // insert audit
-        auditService.endAudit(audit, jsonDebug);
+        this.auditService.endAudit(audit, jsonDebug);
         return jsonOutput.toString();
     }
 
@@ -85,7 +85,7 @@ public class UsersController {
         AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_GET_USER);
         Date startTime = new Date();
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
-        auditService.beginAudit(audit, jsonDebug);
+        this.auditService.beginAudit(audit, jsonDebug);
         
 
         JSONObject jsonOutput = new JSONObject();
@@ -119,7 +119,7 @@ public class UsersController {
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Query...");
 
         try{
-            List<UsersEntity> users = usersService.getUsers(userID);
+            List<UsersEntity> users = this.usersService.getUsers(userID);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried Data...");
             jsonDebug = Functions.addDebugTrail(jsonDebug, 
                 users == null || users.isEmpty() ? "Did not found Users..." : "Found Users...");
@@ -146,7 +146,7 @@ public class UsersController {
         AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_UPDATE_USER);
 
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
-        auditService.beginAudit(audit, jsonDebug);
+        this.auditService.beginAudit(audit, jsonDebug);
 
         JSONObject jsonOutput = new JSONObject();
         JSONObject jsonInput = null;
@@ -187,7 +187,7 @@ public class UsersController {
         }
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Update...");
 
-        UsersEntity user = usersService.getUserByID(userID);
+        UsersEntity user = this.usersService.getUserByID(userID);
         if(user == null){
             String outputMsg = "User to Update was not found. Provided ID is Invalid!";
             String exceptionMsg = "Exception when querying User...";
@@ -228,21 +228,21 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
-        if(usersService.isEmailInUse(user.getEmail(), userID)){
+        if(this.usersService.isEmailInUse(user.getEmail(), userID)){
             String outputMsg = "Provided Email is already associated with a different account!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to update User...");
-        
         // update user in db
         try{
-            user = usersService.updateUser(user);
+            user = this.usersService.updateUser(user);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Updated Data...");
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
 
             String newOutputMsg = "Successfully Updated User";
+            // user.setPassword(null);
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
                 queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
         }
@@ -262,10 +262,10 @@ public class UsersController {
         String finalOutputStr = null;
         String requestURI = "api/users/deleteUser";
         String processUUID = UUID.randomUUID().toString();
-        AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_GET_USER);
+        AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_DELETE_USER);
         Date startTime = new Date();
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
-        auditService.beginAudit(audit, jsonDebug);
+        this.auditService.beginAudit(audit, jsonDebug);
         
 
         JSONObject jsonOutput = new JSONObject();
@@ -301,7 +301,7 @@ public class UsersController {
         }
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Query...");
 
-        UsersEntity user = usersService.getActiveUserByID(userID);
+        UsersEntity user = this.usersService.getActiveUserByID(userID);
         if(user == null){
             String outputMsg = "User to Delete was not found!";
             String exceptionMsg = "Exception when querying User...";
@@ -312,7 +312,7 @@ public class UsersController {
 
         try{
             user.setIsActive(false);        
-            user = usersService.updateUser(user);
+            user = this.usersService.updateUser(user);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
             String newOutputMsg = "Successfully Deleted User";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
@@ -334,10 +334,10 @@ public class UsersController {
         String requestURI = "api/users/createUser";
         Date startTime = new Date();
         String processUUID = UUID.randomUUID().toString();
-        AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_UPDATE_USER);
+        AuditEntity audit = new AuditEntity(processUUID, Constants.AUDIT_PROCESS_NAME_INSERT_USER);
 
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
-        auditService.beginAudit(audit, jsonDebug);
+        this.auditService.beginAudit(audit, jsonDebug);
 
         JSONObject jsonOutput = new JSONObject();
         JSONObject jsonInput = null;
@@ -402,7 +402,7 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
-        if(usersService.isEmailInUse(user.getEmail(), null)){
+        if(this.usersService.isEmailInUse(user.getEmail(), null)){
             String outputMsg = "Provided Email is already associated with a different account!";
             String exceptionMsg = "Exception when mapping updated User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
@@ -413,7 +413,7 @@ public class UsersController {
         
         // insert user in db
         try{
-            user = usersService.insertUser(user);
+            user = this.usersService.insertUser(user);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Inserted Data...");
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
 

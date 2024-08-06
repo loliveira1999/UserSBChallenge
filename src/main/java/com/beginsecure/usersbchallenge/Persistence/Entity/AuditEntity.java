@@ -49,25 +49,25 @@ public class AuditEntity {
         this.process = process;
     };
 
-    public void begin(JSONObject audit){
+    public void initialize(JSONObject audit){
         this.ID = null;
-        this.status = Constants.AUDIT_STATUS_BEGIN;
         this.audit = audit == null ? null : audit.toString();
         this.createdOn = Functions.dateTimeToString(new Date(), Constants.DATE_TIME_MSEC_FORMAT);
+    }
+
+    public void begin(JSONObject audit){
+        this.initialize(audit);
+        this.status = Constants.AUDIT_STATUS_BEGIN;
     }
 
     public void exception(JSONObject audit){
-        this.ID = null;
+        this.initialize(audit);
         this.status = Constants.AUDIT_STATUS_EXCEPTION;
-        this.audit = audit == null ? null : audit.toString();
-        this.createdOn = Functions.dateTimeToString(new Date(), Constants.DATE_TIME_MSEC_FORMAT);
     }
 
     public void end(JSONObject audit){
-        this.ID = null;
+        this.initialize(audit);
         this.status = Constants.AUDIT_STATUS_END;
-        this.audit = audit == null ? null : audit.toString();
-        this.createdOn = Functions.dateTimeToString(new Date(), Constants.DATE_TIME_MSEC_FORMAT);
     }
 
     public String getProcessUUID() {
@@ -78,4 +78,13 @@ public class AuditEntity {
         return process;
     }
     
+     // TO JSON
+     public JSONObject toJsonObject() {
+        return new JSONObject()
+            .put("ID", Functions.defaultValue(this.ID, JSONObject.NULL))
+            .put("processUUID", Functions.defaultValue(this.processUUID, JSONObject.NULL))
+            .put("process", Functions.defaultValue(this.process, JSONObject.NULL))
+            .put("status", Functions.defaultValue(this.status, JSONObject.NULL))
+            .put("createdOn", Functions.defaultValue(this.createdOn, JSONObject.NULL));
+        }
 }
