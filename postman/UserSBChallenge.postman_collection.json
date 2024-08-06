@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c2758c1a-4d9f-408a-b579-9a25562d06dc",
+		"_postman_id": "b72753d5-7dd8-48f9-a5ad-7520576715e1",
 		"name": "UserSBChallenge",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "37403389"
@@ -22,7 +22,48 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {}\n}"
+					"raw": "{\n    \"Content\": {\n        \"id\": 1\n    }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/users/getUsers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"getUsers"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "application/json",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllUsers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Content\": {\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/getUsers",
@@ -60,7 +101,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n        \"id\": 1,\n        \"name\": \"Sofia\",\n        \"email\": \"sofia@outlook.com\"\n    }\n}"
+					"raw": "{\n    \"Content\": {\n        \"id\": 1,\n        \"email\": \"zecosta@outlook.com\",\n        \"password\": \"12345678\"\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/updateUser",
@@ -86,6 +127,44 @@
 			"response": []
 		},
 		{
+			"name": "createUser",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Content\": {\n        \"name\": \"Zé\",\n        \"email\": \"ze1@outlook.com\",\n        \"password\": \"123456789\",\n        \"birthdate\": \"1992-12-21\"\n    }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/users/createUser",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"users",
+						"createUser"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "application/json",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "deleteUser",
 			"request": {
 				"method": "PUT",
@@ -98,7 +177,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"Content\": {\n        \"id\": 111\n    }\n}"
+					"raw": "{\n    \"Content\": {\n        \"id\": 1\n    }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/api/users/deleteUser",
@@ -118,6 +197,105 @@
 							"value": "application/json",
 							"disabled": true
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "validateToken",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "6590250d-73aa-4789-89b1-044df644a02c",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/token/validateToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"token",
+						"validateToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getToken",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/token/getToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"token",
+						"getToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "generateToken",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/token/generateToken",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"token",
+						"generateToken"
 					]
 				}
 			},
