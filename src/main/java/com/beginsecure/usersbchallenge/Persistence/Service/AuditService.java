@@ -26,7 +26,7 @@ public class AuditService {
     public void exceptionAudit(AuditEntity audit, JSONObject jsonAudit) {
         audit = new AuditEntity(audit);
         audit.exception(jsonAudit);
-        auditRepository.save(audit);
+        auditRepository.saveAndFlush(audit);
     }
     public void endAudit(AuditEntity audit, JSONObject jsonAudit) {
         audit = new AuditEntity(audit);

@@ -19,6 +19,7 @@ public class Constants {
 
 
     // JSON INPUT PARAMETERS
+    public static final String JSON_P_TOKEN         = "Token";
     public static final String JSON_P_CONTENT       = "Content";
     public static final String JSON_P_ID            = "id";
     public static final String JSON_P_NAME          = "name";
@@ -48,10 +49,4 @@ public class Constants {
 
     // DB 
     public static final String DB_NAME  = "UserSBChallenge";
-
-    
-    // API TOKEN
-    public static final String API_TOKEN_FILE_PATH = "Config/apiToken.txt";
-
-
 }

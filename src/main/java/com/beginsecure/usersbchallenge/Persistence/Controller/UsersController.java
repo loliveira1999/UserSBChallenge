@@ -19,6 +19,7 @@ import com.beginsecure.usersbchallenge.Persistence.Entity.AuditEntity;
 import com.beginsecure.usersbchallenge.Persistence.Entity.UsersEntity;
 import com.beginsecure.usersbchallenge.Persistence.Service.AuditService;
 import com.beginsecure.usersbchallenge.Persistence.Service.UsersService;
+import com.beginsecure.usersbchallenge.Security.TokenService;
 import com.beginsecure.usersbchallenge.Util.Constants;
 import com.beginsecure.usersbchallenge.Util.Functions;
 
@@ -33,11 +34,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UsersController {
     private final UsersService usersService;
     private final AuditService auditService;
+    private TokenService tokenService;
 
     @Autowired
-    public UsersController(UsersService usersService, AuditService auditService){
+    public UsersController(UsersService usersService, AuditService auditService, TokenService tokenService){
         this.usersService = usersService;
         this.auditService = auditService;
+        this.tokenService = tokenService;
     }
 
     private JSONArray queryResultsToJsonArray(List<UsersEntity> users) {
@@ -108,7 +111,7 @@ public class UsersController {
         catch(Exception e){
             String outputMsg = "JSON Input is invalid or empty.";
             String exceptionMsg = e.getMessage();
-            finalOutputStr =exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
+            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         
@@ -124,7 +127,7 @@ public class UsersController {
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried Data...");
             jsonDebug = Functions.addDebugTrail(jsonDebug, 
                 users == null || users.isEmpty() ? "Did not found Users..." : "Found Users...");
-            String newOutputMsg = "Successfully Fetched User/s";
+            String newOutputMsg = "Successfully " + users.size() + " Fetched User/s";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
                 queryResultsToJsonArray(users), jsonDebug, audit);
         }
@@ -158,7 +161,6 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
-        
         try{
             jsonInput = new JSONObject(rawJsonRequest);
             if(!jsonInput.has(Constants.JSON_P_CONTENT)){
@@ -206,6 +208,7 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
+        // BUG: If any of the below ifs are triggered, the auditService tries to save a User for some reason...
         // verify email
         if(user.getEmail() == null){
             String outputMsg = "Provided Email is not valid! It has an invalid format!";
@@ -385,7 +388,7 @@ public class UsersController {
         // verify email
         if(user.getEmail() == null){
             String outputMsg = "Provided Email is not valid! It has an invalid format!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
+            String exceptionMsg = "Exception when mapping User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
@@ -393,21 +396,21 @@ public class UsersController {
         if(user.getPassword() == null){
             String outputMsg = "Provided Password is not valid! It must have at least " 
                 + Constants.PASSWORD_MIN_LEN + " characters!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
+            String exceptionMsg = "Exception when mapping User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify NULL values inside user
         if(user.isUserInvalid()){
-            String outputMsg = "Provided updated values are not valid!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
+            String outputMsg = "Provided values are not valid!";
+            String exceptionMsg = "Exception when mapping User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // verify unique email
         if(this.usersService.isEmailInUse(user.getEmail(), null)){
             String outputMsg = "Provided Email is already associated with a different account!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
+            String exceptionMsg = "Exception when mapping User Data...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
