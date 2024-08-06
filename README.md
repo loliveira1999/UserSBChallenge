@@ -1,3 +1,14 @@
+## TO RUN
+- In Terminal (root project folder): 
+`mvn clean package`
+`java -jar target/usersbchallenge-0.0.1-SNAPSHOT.jar`
+- Use Postman Collection
+
+## TO TEST
+In Terminal (root project folder): 
+`mvn -Dtest=UsersControllerTest test`
+
+## EXERCISE
 The idea of this exercise is to implement a simple API (backend) as a way to test (and improve)
 your knowledge in web development. You need to provide functionality based on REST or
 GraphQL API. Ensure that the API can be tested and checked using Postman or something
