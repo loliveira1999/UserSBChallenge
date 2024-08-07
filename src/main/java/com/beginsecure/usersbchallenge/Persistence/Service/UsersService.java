@@ -41,7 +41,7 @@ public class UsersService {
             return usersRepository.getAllUsers();
         else{
             UsersEntity user = usersRepository.getUserByID(userID);
-            return user == null ? new ArrayList<UsersEntity>() : Collections.singletonList(user);
+            return user == null ? new ArrayList<UsersEntity>() : List.of(user);
         }
     }
 

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -194,7 +193,7 @@ public class UsersController {
 
 
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
-        if(jsonContent.keySet().size() == 0){
+        if(jsonContent.length() == 0){
             String outputMsg = "JSON Input does not contain enough content to update a User.";
             String exceptionMsg = "Exception occurred while extracting Data from JSON...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
@@ -268,7 +267,7 @@ public class UsersController {
             String newOutputMsg = "Successfully Updated User";
             // user.setPassword(null);
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
-                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+                queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
         }
         catch(Exception e){
             String outputMsg = "Error while Updating User!";
@@ -349,7 +348,7 @@ public class UsersController {
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
             String newOutputMsg = "Successfully Deleted User";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
-                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+                queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
         }
         catch(Exception e){
             String outputMsg = "Error while Deleting User!";
@@ -396,7 +395,7 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
-        if(jsonContent.keySet().size() == 0){
+        if(jsonContent.length() == 0){
             String outputMsg = "JSON Input does not contain enough content to create a User.";
             String exceptionMsg = "Exception occurred while extracting Data from JSON...";
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
@@ -453,7 +452,7 @@ public class UsersController {
 
             String newOutputMsg = "Successfully Created User";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
-                queryResultsToJsonArray(Collections.singletonList(user)), jsonDebug, audit);
+                queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
         }
         catch(Exception e){
             String outputMsg = "Error while Creating User!";

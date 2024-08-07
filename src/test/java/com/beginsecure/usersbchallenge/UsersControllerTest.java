@@ -20,7 +20,6 @@ public class UsersControllerTest {
 
     @Test
     public void testGetUsers() throws Exception {
-        // Perform a GET request to /users
         mockMvc.perform(MockMvcRequestBuilders.get("http://localhost:8080/api/users/getUsers")
             .content(
                 """
@@ -36,23 +35,22 @@ public class UsersControllerTest {
             .andExpect(status().isUnauthorized());
     }
     
-	// @Test
-    // public void testCreateUser() throws Exception {
-    //     // Perform a GET request to /users
-    //     mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/api/users/createUser")
-    //         .content(
-    //             String.format(
-	// 			"""
-	// 			{
-	// 				"Content": {
-	// 					"name": "Zé TEST",
-	// 					"email": "%s@outlook.com",
-	// 					"password": "123456789",
-	// 					"birthdate": "1992-12-21"
-	// 				}
-	// 			}
-    //             """, UUID.randomUUID().toString())
-	// 		))
-	// 		.andExpect(status().isOk());
-    // }
+	@Test
+    public void testCreateUser() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/api/users/createUser")
+            .content(
+                String.format(
+				"""
+				{
+					"Content": {
+						"name": "Zé TEST",
+						"email": "%s@outlook.com",
+						"password": "123456789",
+						"birthdate": "1992-12-21"
+					}
+				}
+                """, UUID.randomUUID().toString())
+			))
+			.andExpect(status().isOk());
+    }
 }
