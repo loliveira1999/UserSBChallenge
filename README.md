@@ -6,7 +6,7 @@
 
 ## TO TEST
 In Terminal (root project folder): 
-`mvn -Dtest=UsersControllerTest test`
+`mvn test -Dtest=UsersControllerTest`
 
 ## EXERCISE
 The idea of this exercise is to implement a simple API (backend) as a way to test (and improve)

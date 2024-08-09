@@ -114,7 +114,7 @@ public class UsersController {
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        Boolean debug = Boolean.valueOf(jsonInput.optBoolean(Constants.JSON_P_DEBUG));
         if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;
@@ -181,7 +181,7 @@ public class UsersController {
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        Boolean debug = Boolean.valueOf(jsonInput.optBoolean(Constants.JSON_P_DEBUG));
         if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;
@@ -250,7 +250,7 @@ public class UsersController {
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        Boolean debug = Boolean.valueOf(jsonInput.optBoolean(Constants.JSON_P_DEBUG));
         if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;

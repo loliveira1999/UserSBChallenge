@@ -36,7 +36,7 @@ public class UsersControllerTest {
     }
     
 	@Test
-    public void testCreateUser() throws Exception {
+    public void testCreateUser_valid() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/api/users/createUser")
             .content(
                 String.format(
@@ -52,5 +52,24 @@ public class UsersControllerTest {
                 """, UUID.randomUUID().toString())
 			))
 			.andExpect(status().isOk());
+    }
+
+	@Test
+    public void testCreateUser_invalidPw() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("http://localhost:8080/api/users/createUser")
+            .content(
+                String.format(
+				"""
+				{
+					"Content": {
+						"name": "Zé TEST",
+						"email": "%s@outlook.com",
+						"password": "1234567",
+						"birthdate": "1992-12-21"
+					}
+				}
+                """, UUID.randomUUID().toString())
+			))
+			.andExpect(status().isInternalServerError());
     }
 }
