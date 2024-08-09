@@ -39,12 +39,15 @@ public class UsersService {
         return !users.isEmpty();
     }
     
-    public List<UsersEntity> getUsers(Integer userID){
+    public List<UsersEntity> getUsers(Integer userID) throws Exception{
         if(userID == null)
             return usersRepository.getAllUsers();
+        if(userID < 1){
+            throw new Exception("Invalid User ID!");
+        }
         else{
             UsersEntity user = usersRepository.getUserByID(userID);
-            return user == null ? new ArrayList<UsersEntity>() : List.of(user);
+            return user == null ? List.of() : List.of(user);
         }
     }
 
@@ -68,7 +71,6 @@ public class UsersService {
         }
         // Update User with New Values. Invalid Values will be set to NULL
         user.updateUser(jsonUser);
-        // BUG: If any of the below ifs are triggered, the auditService tries to save a User for some reason...
         // verify email (invalid email)
         if(user.getEmail() == null){
             throw new Exception("User Email is not valid!");

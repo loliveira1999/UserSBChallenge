@@ -90,7 +90,6 @@ public class UsersController {
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
         this.auditService.beginAudit(audit, jsonDebug);
         
-
         JSONObject jsonOutput = new JSONObject();
         JSONObject jsonInput = null;
 
@@ -109,25 +108,23 @@ public class UsersController {
         }
         catch(Exception e){
             String outputMsg = "JSON Input is invalid or empty.";
-            String exceptionMsg = e.getMessage();
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        if(!this.tokenService.isValidToken(requestToken)){
+        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
         }
 
-        
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
-        Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID);
-        if(userID <= 0){
-           userID = null;
-        }
+        // extract ID
+        Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID, null);
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Query...");
 
         try{
@@ -140,8 +137,8 @@ public class UsersController {
                 queryResultsToJsonArray(users), jsonDebug, audit);
         }
         catch(Exception e){
-            String outputMsg = "Error while Fetching User/s!";
-            String exceptionMsg = e.getMessage();
+            String outputMsg = e.getMessage();
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
@@ -177,8 +174,8 @@ public class UsersController {
             jsonDebug.put(Constants.JSON_D_INPUT_PATH, jsonInput);
         }
         catch(Exception e){
-            String outputMsg = "JSON Input is invalid or empty.";
-            String exceptionMsg = e.getMessage();
+            String outputMsg = "JSON Input is invalid or empty!";
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
@@ -209,10 +206,9 @@ public class UsersController {
             String newOutputMsg = "Successfully Updated User";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
                 queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
-        } catch (Exception e) {
+        } catch(Exception e) {
             String outputMsg = e.getMessage();
-            String exceptionMsg = outputMsg;
-            finalOutputStr = e.getMessage();
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }

@@ -3,6 +3,8 @@ package com.beginsecure.usersbchallenge.Util;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -169,5 +171,12 @@ public class Functions{
         digest.update(password.getBytes());
         byte[] hash = digest.digest();
         return Functions.encodeHash(hash);
+    }
+
+    public static String stackTraceToString(Throwable throwable){
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        return stringWriter.toString();
     }
 }
