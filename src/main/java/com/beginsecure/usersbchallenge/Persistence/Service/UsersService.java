@@ -1,7 +1,6 @@
 package com.beginsecure.usersbchallenge.Persistence.Service;
 
 import java.util.List;
-import java.util.ArrayList;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,12 +88,18 @@ public class UsersService {
             throw new Exception("User Email is already associated with a different account!");
         }
         user.setUpdatedOn();
-        usersRepository.save(user);
-        return user;
+        return usersRepository.save(user);
     }
 
     // @Transactional
-    public UsersEntity deactivateUser(UsersEntity user) throws Exception{         
+    public UsersEntity deactivateUser(Integer userID) throws Exception{      
+        if(userID == null|| userID <= 0){
+            throw new Exception("Invalid User ID!");
+        }
+        UsersEntity user = this.getActiveUserByID(userID);
+        if(user == null){
+            throw new Exception("Active User with the provided ID was not found!");
+        }
         user.setIsActive(false);
         user.setUpdatedOn();
         return usersRepository.save(user);

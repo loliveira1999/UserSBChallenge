@@ -226,7 +226,6 @@ public class UsersController {
         JSONObject jsonDebug = Functions.initiateJsonDebug(startTime, requestURI, rawJsonRequest);
         this.auditService.beginAudit(audit, jsonDebug);
         
-
         JSONObject jsonOutput = new JSONObject();
         JSONObject jsonInput = null;
 
@@ -245,49 +244,33 @@ public class UsersController {
         }
         catch(Exception e){
             String outputMsg = "JSON Input is invalid or empty.";
-            String exceptionMsg = e.getMessage();
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        if(!this.tokenService.isValidToken(requestToken)){
+        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
         }
 
-        
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
         Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID);
-        if(userID == null|| userID <= 0){
-            String outputMsg = "JSON Input does not contain an ID to Delete.";
-            String exceptionMsg = "Exception occurred while extracting ID from JSON...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Query...");
-
-        UsersEntity user = this.usersService.getActiveUserByID(userID);
-        if(user == null){
-            String outputMsg = "User to Delete was not found!";
-            String exceptionMsg = "Exception when querying User...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried User to Delete...");
-
+                
         try{
-            user = this.usersService.deactivateUser(user);
+            UsersEntity user = this.usersService.deactivateUser(userID);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
             String newOutputMsg = "Successfully Deleted User";
-            finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
+            finalOutputStr = successOutput(jsonOutput, newOutputMsg,
                 queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
         }
         catch(Exception e){
-            String outputMsg = "Error while Deleting User!";
-            String exceptionMsg = e.getMessage();
+            String outputMsg = e.getMessage();
+            String exceptionMsg = Functions.stackTraceToString(e);
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
