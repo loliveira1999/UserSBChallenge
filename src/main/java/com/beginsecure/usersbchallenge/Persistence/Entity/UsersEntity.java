@@ -123,6 +123,12 @@ public class UsersEntity {
         this.updatedOn = new Date();
     }
 
+    // Deactivates User
+    public void deactivatesUser(){
+        this.updatedOn = new Date();
+        this.isActive = false;
+    }
+
     // verify if recently created user is invalid (contains null values)
     public boolean isUserInvalid(){
         return 

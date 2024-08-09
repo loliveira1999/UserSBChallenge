@@ -58,10 +58,6 @@ public class UsersService {
         UsersEntity user = new UsersEntity(jsonUser);
         // checks if User is Invalid
         this.throwExceptionIfInvalidUser(user);
-        user.setID(null);
-        user.setCreatedOn();
-        user.setUpdatedOn();
-        user.setIsActive(true);
         try{
             this.usersRepository.save(user);
         }
@@ -85,7 +81,6 @@ public class UsersService {
         user.updateUser(jsonUser);
         // checks if User is Invalid
         this.throwExceptionIfInvalidUser(user);
-        user.setUpdatedOn();
         try{
             this.usersRepository.save(user);
         }
@@ -104,8 +99,7 @@ public class UsersService {
         if(user == null){
             throw new Exception("Active User with the provided ID was not found!");
         }
-        user.setIsActive(false);
-        user.setUpdatedOn();
+        user.deactivatesUser();
         try{
             this.usersRepository.save(user);
         }
@@ -127,7 +121,7 @@ public class UsersService {
         }
         // verify NULL values inside user
         if(user.isUserInvalid()){
-            throw new Exception("User Updated Values are not valid!");
+            throw new Exception("User Values are not valid!");
         }
         // verify unique email
         if(this.isEmailInUse(user.getEmail(), user.getID())){
