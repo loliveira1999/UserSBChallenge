@@ -1,6 +1,7 @@
 package com.beginsecure.usersbchallenge.Persistence.Entity;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -15,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name="users", schema=Constants.DB_NAME)
@@ -47,6 +49,9 @@ public class UsersEntity {
 
     @Column(name="is_active", nullable=false)
     private Boolean isActive;
+
+    @Transient
+    private Integer age;
 
     // CONSTRUCTORS
     // default
@@ -113,7 +118,7 @@ public class UsersEntity {
         // is active
         if(jsonContent.has(Constants.JSON_P_ISACTIVE)){
             this.isActive = (Boolean) Functions.defaultValue(
-                jsonContent.getBoolean(Constants.JSON_P_ISACTIVE),
+                jsonContent.optBooleanObject(Constants.JSON_P_ISACTIVE),
                 Boolean.FALSE);
         }
         // updated on
@@ -141,6 +146,7 @@ public class UsersEntity {
             .put("birthdate", Functions.defaultValue(
                                 Functions.dateTimeToString(this.birthdate, Constants.DATE_FORMAT), 
                                 JSONObject.NULL))
+            .put("age", Functions.defaultValue(this.getAge(), JSONObject.NULL))
             .put("createdOn", Functions.defaultValue(
                                 Functions.dateTimeToString(this.createdOn, Constants.DATE_TIME_MSEC_FORMAT), 
                                 JSONObject.NULL))
@@ -220,5 +226,27 @@ public class UsersEntity {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public Integer getAge() {
+        if(this.birthdate == null)
+            return null;
+        Calendar birthCal = Calendar.getInstance();
+        birthCal.setTime(this.birthdate);
+
+        Calendar todayCal = Calendar.getInstance();
+        todayCal.setTime(new Date());
+
+        int age = todayCal.get(Calendar.YEAR) - birthCal.get(Calendar.YEAR);
+
+        // Adjust if birthdate hasn't occurred yet this year
+        if (todayCal.get(Calendar.DAY_OF_YEAR) < birthCal.get(Calendar.DAY_OF_YEAR)) {
+            age--;
+        }
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 }

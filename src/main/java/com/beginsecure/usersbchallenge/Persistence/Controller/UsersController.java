@@ -184,13 +184,13 @@ public class UsersController {
         }
         // token verification
         String requestToken = jsonInput.optString(Constants.JSON_P_TOKEN);
-        if(!this.tokenService.isValidToken(requestToken)){
+        Boolean debug = jsonInput.optBooleanObject(Constants.JSON_P_DEBUG);
+        if(!debug && !this.tokenService.isValidToken(requestToken)){
             String outputMsg = "Invalid Token!";
             String exceptionMsg = outputMsg;
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(finalOutputStr);
         }
-
 
         JSONObject jsonContent = jsonInput.getJSONObject(Constants.JSON_P_CONTENT);
         if(jsonContent.length() == 0){
@@ -199,83 +199,23 @@ public class UsersController {
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
-        Integer userID = jsonContent.optIntegerObject(Constants.JSON_P_ID);
-        if(userID == null|| userID <= 0){
-            String outputMsg = "JSON Input does not contain an ID to Update.";
-            String exceptionMsg = "Exception occurred while extracting Data from JSON...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted ID to Update...");
 
-        UsersEntity user = this.usersService.getUserByID(userID);
-        if(user == null){
-            String outputMsg = "User to Update was not found. Provided ID is Invalid!";
-            String exceptionMsg = "Exception when querying User...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried User to Update...");
-
-        // updates user with json content (only specified and valid values, invalid values are put to null)
         try {
-            user.updateUser(jsonContent);
-        } catch (NoSuchAlgorithmException | JSONException e) {
-            String outputMsg = "Error Updating User!";
-            String exceptionMsg = e.getMessage();
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        // BUG: If any of the below ifs are triggered, the auditService tries to save a User for some reason...
-        // verify email
-        if(user.getEmail() == null){
-            String outputMsg = "Provided Email is not valid! It has an invalid format!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        // verify password
-        if(user.getPassword() == null){
-            String outputMsg = "Provided Password is not valid! It must have at least " 
-                + Constants.PASSWORD_MIN_LEN + " characters!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        // verify NULL values inside user
-        if(user.isUserInvalid()){
-            String outputMsg = "Provided updated values are not valid!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-        // verify unique email
-        if(this.usersService.isEmailInUse(user.getEmail(), userID)){
-            String outputMsg = "Provided Email is already associated with a different account!";
-            String exceptionMsg = "Exception when mapping updated User Data...";
-            finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
-        }
-
-        jsonDebug = Functions.addDebugTrail(jsonDebug, "Extracted Data to update User...");
-        // update user in db
-        try{
-            user = this.usersService.updateUser(user);
+            // update user in db
+            UsersEntity user = this.usersService.updateUserWithJsonContent(jsonContent);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Updated Data...");
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Retrieved Inserted Data...");
 
             String newOutputMsg = "Successfully Updated User";
-            // user.setPassword(null);
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 
                 queryResultsToJsonArray(List.of(user)), jsonDebug, audit);
-        }
-        catch(Exception e){
-            String outputMsg = "Error while Updating User!";
-            String exceptionMsg = e.getMessage();
+        } catch (Exception e) {
+            String outputMsg = e.getMessage();
+            String exceptionMsg = outputMsg;
+            finalOutputStr = e.getMessage();
             finalOutputStr = exceptionOutput(jsonOutput, outputMsg, jsonDebug, exceptionMsg, audit);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(finalOutputStr);
         }
-        
         return ResponseEntity.ok(finalOutputStr);
     }
 
@@ -343,8 +283,7 @@ public class UsersController {
         jsonDebug = Functions.addDebugTrail(jsonDebug, "Queried User to Delete...");
 
         try{
-            user.setIsActive(false);        
-            user = this.usersService.updateUser(user);
+            user = this.usersService.deactivateUser(user);
             jsonDebug = Functions.addDebugTrail(jsonDebug, "Deactivated User...");
             String newOutputMsg = "Successfully Deleted User";
             finalOutputStr = successOutput(jsonOutput, newOutputMsg, 

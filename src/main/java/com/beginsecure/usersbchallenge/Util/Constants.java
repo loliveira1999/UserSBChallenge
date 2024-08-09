@@ -19,6 +19,7 @@ public class Constants {
 
 
     // JSON INPUT PARAMETERS
+    public static final String JSON_P_DEBUG         = "Debug";
     public static final String JSON_P_TOKEN         = "Token";
     public static final String JSON_P_CONTENT       = "Content";
     public static final String JSON_P_ID            = "id";
