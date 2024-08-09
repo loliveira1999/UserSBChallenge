@@ -60,10 +60,8 @@ public class UsersEntity {
     // json
     public UsersEntity(JSONObject jsonContent) throws NoSuchAlgorithmException, JSONException {
         // only fills attributes specified in the JSON
-        // ID
-        if(jsonContent.has(Constants.JSON_P_ID)){
-            this.ID = jsonContent.getInt(Constants.JSON_P_ID);
-        }
+        // id
+        this.ID = null;
         // name
         if(jsonContent.has(Constants.JSON_P_NAME)){
             this.name = jsonContent.getString(Constants.JSON_P_NAME);

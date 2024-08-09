@@ -1,7 +1,9 @@
 package com.beginsecure.usersbchallenge.Persistence.Service;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -25,37 +27,48 @@ public class UsersService {
     public UsersEntity getUserByID(Integer userID){
         if(userID == null)
             return null;
-        return usersRepository.getUserByID(userID);
+        return this.usersRepository.getUserByID(userID);
     }
 
     public UsersEntity getActiveUserByID(Integer userID){
-        return usersRepository.getActiveUserByID(userID);
+        return this.usersRepository.getActiveUserByID(userID);
     }
 
     public boolean isEmailInUse(String userEmail, Integer userID){
         // ID can be null
-        List<UsersEntity> users = usersRepository.getUserWEmail(userEmail, userID, PageRequest.of(0, 1));
+        List<UsersEntity> users = this.usersRepository.getUserWEmail(userEmail, userID, PageRequest.of(0, 1));
         return !users.isEmpty();
     }
     
     public List<UsersEntity> getUsers(Integer userID) throws Exception{
         if(userID == null)
-            return usersRepository.getAllUsers();
+            return this.usersRepository.getAllUsers();
         if(userID < 1){
             throw new Exception("Invalid User ID!");
         }
         else{
-            UsersEntity user = usersRepository.getUserByID(userID);
+            UsersEntity user = this.usersRepository.getUserByID(userID);
             return user == null ? List.of() : List.of(user);
         }
     }
 
-    // @Transactional
-    public UsersEntity insertUser(UsersEntity user){
+    @Transactional(rollbackOn = Exception.class)
+    public UsersEntity insertUserWithJsonContent(JSONObject jsonUser) throws Exception{
+        // creates user with JSON Values. Invalid Values will be set to NULL
+        UsersEntity user = new UsersEntity(jsonUser);
+        // checks if User is Invalid
+        this.throwExceptionIfInvalidUser(user);
         user.setID(null);
         user.setCreatedOn();
         user.setUpdatedOn();
-        return usersRepository.save(user);
+        user.setIsActive(true);
+        try{
+            this.usersRepository.save(user);
+        }
+        catch(Exception e){
+            throw new Exception("Error Inserting User!");
+        }
+        return user;
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -70,6 +83,39 @@ public class UsersService {
         }
         // Update User with New Values. Invalid Values will be set to NULL
         user.updateUser(jsonUser);
+        // checks if User is Invalid
+        this.throwExceptionIfInvalidUser(user);
+        user.setUpdatedOn();
+        try{
+            this.usersRepository.save(user);
+        }
+        catch(Exception e){
+            throw new Exception("Error Updating User!");
+        }
+        return user;
+    }
+
+    @Transactional(rollbackOn = Exception.class)
+    public UsersEntity deactivateUser(Integer userID) throws Exception{      
+        if(userID == null|| userID <= 0){
+            throw new Exception("Invalid User ID!");
+        }
+        UsersEntity user = this.getActiveUserByID(userID);
+        if(user == null){
+            throw new Exception("Active User with the provided ID was not found!");
+        }
+        user.setIsActive(false);
+        user.setUpdatedOn();
+        try{
+            this.usersRepository.save(user);
+        }
+        catch(Exception e){
+            throw new Exception("Error Deactivating User!");
+        }
+        return user;
+    }
+
+    public void throwExceptionIfInvalidUser(UsersEntity user) throws Exception{
         // verify email (invalid email)
         if(user.getEmail() == null){
             throw new Exception("User Email is not valid!");
@@ -87,21 +133,5 @@ public class UsersService {
         if(this.isEmailInUse(user.getEmail(), user.getID())){
             throw new Exception("User Email is already associated with a different account!");
         }
-        user.setUpdatedOn();
-        return usersRepository.save(user);
-    }
-
-    // @Transactional
-    public UsersEntity deactivateUser(Integer userID) throws Exception{      
-        if(userID == null|| userID <= 0){
-            throw new Exception("Invalid User ID!");
-        }
-        UsersEntity user = this.getActiveUserByID(userID);
-        if(user == null){
-            throw new Exception("Active User with the provided ID was not found!");
-        }
-        user.setIsActive(false);
-        user.setUpdatedOn();
-        return usersRepository.save(user);
     }
 }
